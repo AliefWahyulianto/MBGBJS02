@@ -14,6 +14,8 @@ use App\Http\Controllers\StokMengendapController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ThemeController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\NotificationController;
 // ========== GUEST ROUTES (BELUM LOGIN) ==========
 Route::get('/', function () {
     return redirect()->route('login');
@@ -37,6 +39,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [StokMasukController::class, 'store'])->name('store');
         Route::get('/filter', [StokMasukController::class, 'filter'])->name('filter');
         Route::get('/history', [StokMasukController::class, 'history'])->name('history');
+        Route::delete('/{stokMasuk}', [StokMasukController::class, 'destroy'])->name('destroy');
+        Route::get('/{stokMasuk}', [StokMasukController::class, 'show'])->name('show');
         Route::get('/export/excel', [StokMasukController::class, 'exportExcel'])->name('export.excel');
         Route::get('/export/pdf', [StokMasukController::class, 'exportPdf'])->name('export.pdf');
     });
@@ -118,6 +122,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/clear-cache', [SettingController::class, 'clearCache'])->name('clear-cache');
     Route::get('/backup', [SettingController::class, 'backup'])->name('backup');
     });
+
+// Supplier
+Route::resource('supplier', SupplierController::class);
+
+// Notifikasi
+Route::prefix('notification')->name('notification.')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('index');
+    Route::get('/mark-read/{id}', [NotificationController::class, 'markAsRead'])->name('mark-read');
+    Route::get('/mark-all-read', [NotificationController::class, 'markAllRead'])->name('mark-all-read');
+    Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
+    Route::get('/latest', [NotificationController::class, 'latest'])->name('latest');
+});
 
 // Theme (Dark Mode)
 Route::post('/setting/theme', [ThemeController::class, 'setTheme'])->name('setting.theme');

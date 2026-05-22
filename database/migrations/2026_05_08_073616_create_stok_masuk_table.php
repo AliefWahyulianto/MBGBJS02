@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('tanggal_masuk');
             $table->string('no_invoice', 100)->nullable();
             $table->text('catatan')->nullable();
-            $table->string('status', 20)->default('pending');
+            $table->string('status', 20)->default('verified');
             $table->timestamps();
         });
     }

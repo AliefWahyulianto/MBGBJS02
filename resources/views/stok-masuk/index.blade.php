@@ -130,6 +130,22 @@
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+                        <!-- Pilih Supplier -->
+                        <div class="space-y-2">
+                            <label class="block font-label-caps text-label-caps text-on-surface-variant">Supplier</label>
+                            <select name="supplier_id" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg">
+                                <option value="">-- Pilih Supplier --</option>
+                                @foreach($suppliers as $supplier)
+                                    <option value="{{ $supplier->id }}">{{ $supplier->nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- No Invoice -->
+                        <div class="space-y-2">
+                            <label class="block font-label-caps text-label-caps text-on-surface-variant">No. Invoice</label>
+                            <input type="text" name="no_invoice" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg" placeholder="INV-2025-001">
+                        </div>
 
                         <!-- Catatan Tambahan -->
                         <div class="space-y-2">
@@ -203,6 +219,15 @@
                                     </select>
                                 </div>
                             </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Supplier</label>
+                                <select id="filterSupplierId" class="w-full border border-slate-200 rounded-lg px-3 py-2">
+                                    <option value="">Semua Supplier</option>
+                                    @foreach($suppliers as $supplier)
+                                        <option value="{{ $supplier->id }}">{{ $supplier->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="flex justify-end gap-3 mt-6">
                                 <button id="btnCloseFilter" class="px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50">Batal</button>
                                 <button id="btnApplyFilter" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Terapkan</button>
@@ -216,10 +241,12 @@
                             <thead>
                                 <tr class="bg-white border-b border-slate-100">
                                     <th class="px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Bahan</th>
+                                    <th class="px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Supplier</th>
                                     <th class="px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-center">Jumlah</th>
                                     <th class="px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-center">Harga</th>
                                     <th class="px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-center">Tanggal</th>
-                                    <th class="px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-right">Status</th>
+                                    <th class="px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-center">Status</th>
+                                    <th class="px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100" id="stokMasukTableBody">
@@ -233,6 +260,9 @@
                                                 <span class="font-medium text-slate-900 text-xs">{{ $item->bahan->nama ?? 'Bahan Dihapus' }}</span>
                                             </div>
                                         </td>
+                                        <td class="px-3 py-2 text-xs text-slate-600">
+                                            {{ $item->supplier->nama ?? '-' }}
+                                        </td>
                                         <td class="px-3 py-2 text-center text-xs text-slate-700">
                                             {{ number_format($item->jumlah, 2) }} {{ $item->bahan->satuan ?? '' }}
                                         </td>
@@ -242,15 +272,29 @@
                                         <td class="px-3 py-2 text-center text-xs text-slate-500">
                                             {{ \Carbon\Carbon::parse($item->tanggal_masuk)->format('d/m/Y') }}
                                         </td>
-                                        <td class="px-3 py-2 text-right">
+                                        <td class="px-3 py-2 text-center">
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-800">
                                                 Verified
                                             </span>
                                         </td>
+                                        <td class="px-3 py-2 text-center">
+                                            <div class="flex items-center justify-center gap-1">
+                                                <a href="{{ route('stok-masuk.show', $item) }}" 
+                                                class="text-blue-500 hover:text-blue-700 transition-colors"
+                                                title="Detail">
+                                                    <span class="material-symbols-outlined text-base">visibility</span>
+                                                </a>
+                                                <button onclick="confirmDelete({{ $item->id }})" 
+                                                        class="text-red-500 hover:text-red-700 transition-colors"
+                                                        title="Hapus">
+                                                    <span class="material-symbols-outlined text-base">delete</span>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-3 py-8 text-center text-slate-500 text-sm">
+                                        <td colspan="7" class="px-3 py-8 text-center text-slate-500 text-sm">
                                             <span class="material-symbols-outlined text-4xl mb-2">inventory</span>
                                             <p>Belum ada riwayat stok masuk</p>
                                             <p class="text-xs mt-1">Silakan tambah stok masuk pertama Anda</p>
@@ -353,6 +397,7 @@
                 if (startDate) url += `start_date=${startDate}&`;
                 if (endDate) url += `end_date=${endDate}&`;
                 if (bahanId) url += `bahan_id=${bahanId}&`;
+                if (supplierId) url += `supplier_id=${supplierId}&`; 
 
                 const response = await fetch(url);
                 const data = await response.json();
@@ -418,5 +463,20 @@
             window.location.reload();
         });
     }
+
+    function confirmDelete(id) {
+    if (confirm('Apakah Anda yakin ingin menghapus data stok masuk ini? Stok bahan akan dikembalikan.')) {
+        // Buat form delete
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/stok-masuk/${id}`;
+        form.innerHTML = `
+            @csrf
+            @method('DELETE')
+        `;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
 </script>
 @endsection

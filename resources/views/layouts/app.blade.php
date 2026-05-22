@@ -401,6 +401,92 @@
         .dark ::-webkit-scrollbar-thumb:hover {
             background: #3b5a9a;
         }
+        /* Dark mode untuk form input */
+        .dark input:not([type="checkbox"]):not([type="radio"]),
+        .dark select,
+        .dark textarea {
+            background-color: #1e293b !important;
+            border-color: #2c3e66 !important;
+            color: #e2e8f0 !important;
+        }
+
+        .dark input:focus,
+        .dark select:focus,
+        .dark textarea:focus {
+            border-color: #10b981 !important;
+            outline: none !important;
+            ring: 2px solid #10b981 !important;
+        }
+
+        .dark input::placeholder,
+        .dark textarea::placeholder {
+            color: #64748b !important;
+        }
+
+        .dark label {
+            color: #94a3b8 !important;
+        }
+
+        /* Dark mode untuk select option */
+        .dark select option {
+            background-color: #1e293b !important;
+            color: #e2e8f0 !important;
+        }
+
+        /* Dark mode untuk file input */
+        .dark input[type="file"] {
+            background-color: #1e293b !important;
+            border-color: #2c3e66 !important;
+            color: #e2e8f0 !important;
+        }
+
+        .dark input[type="file"]::file-selector-button {
+            background-color: #2c3e66 !important;
+            color: #e2e8f0 !important;
+            border: none !important;
+            padding: 8px 16px !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+        }
+
+        .dark input[type="file"]::file-selector-button:hover {
+            background-color: #3b5a9a !important;
+        }
+
+        /* Dark mode untuk card dan border */
+        .dark .bg-white {
+            background-color: #16213e !important;
+        }
+
+        .dark .border-slate-200,
+        .dark .border-slate-300 {
+            border-color: #2c3e66 !important;
+        }
+
+        .dark .bg-slate-50,
+        .dark .bg-slate-50\/50 {
+            background-color: #0f172a !important;
+        }
+
+        .dark .text-slate-500,
+        .dark .text-slate-400,
+        .dark .text-slate-600 {
+            color: #94a3b8 !important;
+        }
+
+        .dark .text-slate-700,
+        .dark .text-slate-800,
+        .dark .text-slate-900 {
+            color: #e2e8f0 !important;
+        }
+            /* TAMBAHKAN CSS FORM INPUT DARK MODE DI SINI */
+        .dark input:not([type="checkbox"]):not([type="radio"]),
+        .dark select,
+        .dark textarea {
+            background-color: #1e293b !important;
+            border-color: #2c3e66 !important;
+            color: #e2e8f0 !important;
+        }
     </style>
 </head>
 <body class="bg-background font-body-md text-on-background antialiased">
@@ -498,6 +584,16 @@
                                       : 'text-slate-500 hover:text-primary hover:bg-slate-50' }}">
                                 <span class="material-symbols-outlined text-sm">inventory</span>
                                 <span class="text-sm">Stok Opname</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('supplier.index') }}" 
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200
+                            {{ request()->routeIs('supplier.*') 
+                                    ? 'text-primary bg-emerald-50/50 border-l-4 border-primary font-bold' 
+                                    : 'text-slate-500 hover:text-primary hover:bg-slate-50' }}">
+                                <span class="material-symbols-outlined text-sm">storefront</span>
+                                <span class="text-sm">Supplier</span>
                             </a>
                         </li>
                         <li>
@@ -707,10 +803,23 @@
                     <button id="darkModeToggle" class="p-2 text-slate-500 hover:text-primary transition-transform active:scale-95 duration-150">
                         <span class="material-symbols-outlined" id="darkModeIcon">dark_mode</span>
                     </button>
-                    <button class="relative p-2 text-slate-500 hover:text-primary transition-transform active:scale-95 duration-150">
-                        <span class="material-symbols-outlined">notifications</span>
-                        <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
-                    </button>
+                    <div class="relative">
+                        <button id="notifButton" class="relative p-2 text-slate-500 hover:text-primary transition-transform active:scale-95 duration-150">
+                            <span class="material-symbols-outlined">notifications</span>
+                            <span id="notifBadge" class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full border-2 border-white hidden"></span>
+                        </button>
+                        
+                        <!-- Dropdown Notifikasi -->
+                        <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl border border-slate-200 shadow-lg z-50">
+                            <div class="p-3 border-b border-slate-100 font-semibold text-slate-800">Notifikasi</div>
+                            <div id="notifList" class="max-h-96 overflow-y-auto">
+                                <div class="p-4 text-center text-slate-400 text-sm">Memuat...</div>
+                            </div>
+                            <div class="p-2 border-t border-slate-100 text-center">
+                                <a href="{{ route('notification.index') }}" class="text-xs text-emerald-600 hover:underline">Lihat Semua</a>
+                            </div>
+                        </div>
+                    </div>
                     <button class="p-2 text-slate-500 hover:text-primary transition-transform active:scale-95 duration-150">
                         <span class="material-symbols-outlined">help_outline</span>
                     </button>
@@ -774,6 +883,74 @@
                 body: JSON.stringify({ theme: html.classList.contains('dark') ? 'dark' : 'light' })
             }).catch(err => console.log('Theme saved locally'));
         });
+
+        // Notifikasi Dropdown
+        const notifButton = document.getElementById('notifButton');
+        const notifDropdown = document.getElementById('notifDropdown');
+        const notifList = document.getElementById('notifList');
+        const notifBadge = document.getElementById('notifBadge');
+
+        if (notifButton) {
+            notifButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                notifDropdown.classList.toggle('hidden');
+                if (!notifDropdown.classList.contains('hidden')) {
+                    loadNotifications();
+                }
+            });
+            
+            document.addEventListener('click', () => {
+                notifDropdown.classList.add('hidden');
+            });
+            
+            notifDropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        function loadNotifications() {
+            fetch('{{ route("notification.unread-count") }}')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.count > 0) {
+                        notifBadge.classList.remove('hidden');
+                    } else {
+                        notifBadge.classList.add('hidden');
+                    }
+                });
+            
+            fetch('{{ route("notification.latest") }}')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        notifList.innerHTML = '<div class="p-4 text-center text-slate-400 text-sm">Tidak ada notifikasi</div>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    data.forEach(notif => {
+                        html += `
+                            <div class="p-3 border-b border-slate-100 hover:bg-slate-50 ${!notif.is_read ? 'bg-emerald-50/30' : ''}">
+                                <div class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-sm ${notif.type == 'stok_habis' ? 'text-red-500' : 'text-orange-500'}">
+                                        ${notif.type == 'stok_habis' ? 'error' : 'warning'}
+                                    </span>
+                                    <div class="flex-1">
+                                        <p class="text-xs font-semibold text-slate-800">${notif.title}</p>
+                                        <p class="text-[10px] text-slate-500 mt-1">${notif.message.substring(0, 50)}${notif.message.length > 50 ? '...' : ''}</p>
+                                        <p class="text-[10px] text-slate-400 mt-1">${new Date(notif.created_at).toLocaleString()}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    notifList.innerHTML = html;
+                });
+        }
+
+        // Load notifikasi setiap 1 menit
+        setInterval(loadNotifications, 60000);
+        loadNotifications();
     </script>
 </body>
 </html>
