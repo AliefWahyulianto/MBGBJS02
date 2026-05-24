@@ -747,6 +747,20 @@
                         <span class="text-sm font-medium">Pengaturan</span>
                     </a>
                 </li>
+                                @auth
+                @if(Auth::user()->role == 'admin')
+                <li>
+                    <a href="{{ route('user.index') }}" 
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
+                    {{ request()->routeIs('user.*') 
+                            ? 'text-primary bg-emerald-50/50 border-l-4 border-primary font-bold' 
+                            : 'text-slate-500 hover:text-primary hover:bg-slate-50' }}">
+                        <span class="material-symbols-outlined">people</span>
+                        <span class="text-sm font-medium">User</span>
+                    </a>
+                </li>
+                @endif
+                @endauth
             </ul>
         </nav>
 

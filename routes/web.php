@@ -16,6 +16,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\UserController;
 // ========== GUEST ROUTES (BELUM LOGIN) ==========
 Route::get('/', function () {
     return redirect()->route('login');
@@ -134,6 +135,11 @@ Route::prefix('notification')->name('notification.')->group(function () {
     Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
     Route::get('/latest', [NotificationController::class, 'latest'])->name('latest');
 });
+
+// User Management (hanya admin)
+Route::resource('user', UserController::class);
+Route::post('/user/{user}/reset-password', [UserController::class, 'resetPassword'])->name('user.reset-password');
+Route::post('/user/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggle-status');
 
 // Theme (Dark Mode)
 Route::post('/setting/theme', [ThemeController::class, 'setTheme'])->name('setting.theme');
