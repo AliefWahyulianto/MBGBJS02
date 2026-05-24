@@ -1,4 +1,4 @@
-# 🍽️ Kitchen Management System MBG Bojongsari 02
+# 🍽️ KMS Admin - Kitchen Management System
 
 <div align="center">
   <img src="https://img.shields.io/badge/Laravel-11.x-red?style=for-the-badge&logo=laravel"/>
@@ -28,6 +28,7 @@
 - Pencatatan stok masuk dengan harga otomatis
 - Stok keluar untuk produksi
 - Riwayat transaksi lengkap
+- Integrasi dengan Supplier
 
 ### 🔄 Stok Opname & Stok Mengendap
 - Koreksi stok fisik vs sistem
@@ -53,23 +54,30 @@
 - Laporan stok, produksi, keuangan
 - Export ke Excel & PDF
 
-### 👥 Multi-User
-- Role: Admin, Manager, Staff, Driver
+### 👥 Manajemen User
+- Multi-role: Admin, Manager, Staff, Driver
 - Autentikasi Laravel Breeze
+- CRUD user dengan upload avatar
+- Reset password & status aktif/nonaktif
+
+### 🏢 Manajemen Supplier
+- Data supplier lengkap
+- Riwayat pembelian
+- Tracking total transaksi & pembelian
+
+### 🔔 Notifikasi
+- Notifikasi stok habis & menipis
+- Dropdown notifikasi real-time
+- Tandai dibaca & semua dibaca
 
 ### 🌙 Dark Mode
 - Toggle light/dark mode
 - Preferensi tersimpan otomatis
 
----
-
-## 🖥️ Tampilan Aplikasi
-
-| Light Mode | Dark Mode |
-|------------|-----------|
-| Dashboard dengan chart | Dashboard dengan chart |
-| Manajemen bahan | Manajemen bahan |
-| Produksi harian | Produksi harian |
+### ⚙️ Pengaturan Sistem
+- Profil dapur (nama, alamat, logo, telepon)
+- Preferensi stok, keuangan, laporan
+- Backup & clear cache
 
 ---
 
@@ -88,15 +96,65 @@
 ---
 
 ## 📁 Struktur Database
+dapurmbg/
+├── bahans # Data bahan baku
+├── stok_masuk # Pencatatan stok masuk
+├── stok_keluar # Pencatatan stok keluar
+├── stok_opname # Koreksi stok fisik
+├── stok_mengendap # Sisa bahan produksi
+├── menus # Data menu makanan
+├── resep # Komposisi bahan per menu
+├── produksi # Produksi harian
+├── produksi_detail # Detail penggunaan bahan
+├── transaksis # Keuangan
+├── suppliers # Data supplier
+├── users # Pengguna sistem
+├── notifications # Notifikasi stok
+└── settings # Pengaturan sistem
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
 
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## 🚀 Cara Install
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+### Prasyarat
+- PHP >= 8.1
+- Composer
+- Node.js & NPM
+- MySQL
 
+### Langkah-langkah
+
+```bash
+# 1. Clone repository
+git clone https://github.com/aliefwahyulianto/MBGBJS02.git
+cd MBGBJS02
+
+# 2. Install dependencies
+composer install
+npm install
+
+# 3. Copy environment file
+cp .env.example .env
+
+# 4. Generate key
+php artisan key:generate
+
+# 5. Setup database di file .env
+# DB_DATABASE=dapurmbg
+# DB_USERNAME=root
+# DB_PASSWORD=
+
+# 6. Jalankan migration dan seeder
+php artisan migrate --seed
+
+# 7. Buat storage link
+php artisan storage:link
+
+# 8. Build assets
+npm run build
+
+# 9. Jalankan server
+php artisan serve
+
+# 10. Jalankan command notifikasi (cron)
+php artisan stok:check
