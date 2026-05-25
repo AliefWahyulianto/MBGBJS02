@@ -1,227 +1,147 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Main Content -->
-<main class="space-y-6">
-    <div class="grid grid-cols-12 gap-8 p-8">
+<div class="p-6 max-w-7xl mx-auto space-y-6 fade-in-up">
+    
+    <!-- Alert -->
+    @if(session('success'))
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <!-- Page Header -->
+    <div class="flex flex-wrap justify-between items-center gap-3">
+        <div>
+            <h1 class="text-xl font-bold text-slate-800">Stok Keluar</h1>
+            <p class="text-slate-500 text-sm">Catat pengeluaran bahan untuk produksi</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ route('stok-keluar.export.excel') }}" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg text-sm font-medium transition flex items-center gap-1">
+                    <span class="material-symbols-outlined text-base">table_chart</span>
+                    Export Excel
+                </a>
+            <a href="{{ route('stok-keluar.export.pdf') }}" class="px-3 py-1.5 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium transition flex items-center gap-1">
+                    <span class="material-symbols-outlined text-base">picture_as_pdf</span>
+                    Export PDF
+                </a>
+        </div>
+    </div>
+
+    <!-- 2 Kolom: Form Kiri + Tabel Kanan -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <!-- Alert Success -->
-        @if(session('success'))
-            <div class="col-span-12 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl flex items-center gap-2">
-                <span class="material-symbols-outlined text-emerald-500">check_circle</span>
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <!-- Alert Error -->
-        @if(session('error'))
-            <div class="col-span-12 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2">
-                <span class="material-symbols-outlined text-red-500">error</span>
-                {{ session('error') }}
-            </div>
-        @endif
-
-        <!-- Left Column: Input Form + Summary Card -->
-        <section class="col-span-12 lg:col-span-4 flex flex-col gap-6">
-            
-            <!-- Input Form Card -->
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 overflow-hidden relative">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-secondary-container/5 rounded-full -mr-16 -mt-16"></div>
-                <div class="relative z-10">
-                    <h2 class="font-h2 text-h2 text-slate-900 mb-1">Input Stok Keluar</h2>
-                    <p class="font-body-sm text-body-sm text-slate-500 mb-6">Catat pengeluaran bahan untuk produksi hari ini.</p>
+        <!-- FORM KIRI -->
+        <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white rounded-xl border p-5">
+                <h2 class="font-semibold text-slate-800 mb-4">Input Stok Keluar</h2>
+                <form action="{{ route('stok-keluar.store') }}" method="POST" class="space-y-4">
+                    @csrf
                     
-                    <form action="{{ route('stok-keluar.store') }}" method="POST" class="space-y-5">
-                        @csrf
-                        
-                        <!-- Pilih Bahan -->
-                        <div class="space-y-2">
-                            <label class="font-label-caps text-label-caps text-slate-500">Pilih Bahan</label>
-                            <div class="relative">
-                                <select name="bahan_id" id="bahan_id" required 
-                                        class="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none">
-                                    <option value="">Cari bahan makanan...</option>
-                                    @foreach($bahans as $bahan)
-                                        <option value="{{ $bahan->id }}" data-satuan="{{ $bahan->satuan }}" data-stok="{{ $bahan->stok }}">
-                                            {{ $bahan->nama }} (Stok: {{ number_format($bahan->stok, 2) }} {{ $bahan->satuan }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
-                            </div>
-                            @error('bahan_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Pilih Bahan</label>
+                        <select name="bahan_id" id="bahan_id" required class="w-full border rounded-lg px-3 py-2 text-sm">
+                            <option value="">-- Pilih Bahan --</option>
+                            @foreach($bahans as $bahan)
+                                <option value="{{ $bahan->id }}" data-satuan="{{ $bahan->satuan }}" data-stok="{{ $bahan->stok }}">
+                                    {{ $bahan->nama }} (Stok: {{ number_format($bahan->stok, 2) }} {{ $bahan->satuan }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                        <!-- Jumlah Keluar -->
-                        <div class="space-y-2">
-                            <label class="font-label-caps text-label-caps text-slate-500">Jumlah Keluar</label>
-                            <div class="relative">
-                                <input type="text" name="jumlah" id="jumlah" required
-                                       class="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" 
-                                       placeholder="0"
-                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                <span id="satuanText" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">UNIT</span>
-                            </div>
-                            <p id="stokWarning" class="text-xs text-red-500 hidden mt-1"></p>
-                            @error('jumlah')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Jumlah Keluar</label>
+                        <div class="relative">
+                            <input type="text" name="jumlah" id="jumlah" required class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="0" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <span id="satuanText" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">UNIT</span>
                         </div>
+                        <p id="stokWarning" class="text-xs text-red-500 hidden mt-1"></p>
+                    </div>
 
-                        <!-- Tanggal Pengeluaran -->
-                        <div class="space-y-2">
-                            <label class="font-label-caps text-label-caps text-slate-500">Tanggal Pengeluaran</label>
-                            <div class="relative">
-                                <input type="date" name="tanggal_keluar" required value="{{ date('Y-m-d') }}"
-                                       class="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
-                            </div>
-                            @error('tanggal_keluar')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Tanggal Pengeluaran</label>
+                        <input type="date" name="tanggal_keluar" value="{{ date('Y-m-d') }}" required class="w-full border rounded-lg px-3 py-2 text-sm">
+                    </div>
 
-                        <!-- Keterangan -->
-                        <div class="space-y-2">
-                            <label class="font-label-caps text-label-caps text-slate-500">Keterangan</label>
-                            <textarea name="keterangan" rows="2" 
-                                      class="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                                      placeholder="Contoh: Untuk produksi menu Nasi Goreng"></textarea>
-                        </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Keterangan</label>
+                        <textarea name="keterangan" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Contoh: Untuk produksi Nasi Goreng"></textarea>
+                    </div>
 
-                        <!-- Submit Button -->
-                        <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 group">
-                            <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">outbox</span>
-                            Simpan Pengeluaran
-                        </button>
-                    </form>
-                </div>
+                    <button type="submit" class="w-full bg-primary text-white py-2 rounded-lg font-semibold text-sm hover:bg-primary/90">📤 Simpan Pengeluaran</button>
+                </form>
             </div>
 
             <!-- Summary Card -->
-            <div class="bg-primary border border-primary-container rounded-xl p-6 text-white overflow-hidden relative group">
-                <div class="absolute -bottom-8 -right-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                    <span class="material-symbols-outlined text-9xl">trending_down</span>
-                </div>
-                <p class="font-label-caps text-label-caps text-primary-fixed/80">TOTAL KELUAR HARI INI</p>
-                <div class="mt-2 flex items-baseline gap-2">
-                    <h3 class="font-display-lg text-display-lg">{{ number_format($totalStokKeluarHariIni, 2) }}</h3>
-                    <span class="text-primary-fixed/80 font-medium">UNIT</span>
-                </div>
-                <div class="mt-4 flex items-center gap-2 text-primary-fixed text-xs">
-                    <span class="material-symbols-outlined text-xs">inventory</span>
-                    <span>Dari {{ $totalTransaksiHariIni }} transaksi hari ini</span>
-                </div>
+            <div class="bg-primary rounded-xl p-5 text-white">
+                <p class="text-xs opacity-80">TOTAL KELUAR HARI INI</p>
+                <p class="text-2xl font-bold">{{ number_format($totalStokKeluarHariIni, 2) }} <span class="text-sm font-normal">UNIT</span></p>
+                <p class="text-xs opacity-80 mt-1">Dari {{ $totalTransaksiHariIni }} transaksi</p>
             </div>
-        </section>
+        </div>
 
-        <!-- Right Column: History Table -->
-        <section class="col-span-12 lg:col-span-8">
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                
-                <!-- Table Header -->
-                    <div class="px-6 py-5 border-b border-slate-100">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h2 class="font-h2 text-h2 text-slate-900">Riwayat Stok Keluar</h2>
-                                <p class="font-body-sm text-body-sm text-slate-500 mt-1">Menampilkan data pengeluaran terakhir.</p>
-                            </div>
-                            <div class="flex flex-col items-end gap-2">
-                                <div class="flex gap-2">
-                                    <button id="btnFilter" class="text-emerald-600 font-semibold text-sm flex items-center gap-1 hover:underline">
-                                        <span class="material-symbols-outlined text-sm">filter_list</span>
-                                         Filter
-                                     </button>
-                                    <button id="btnRefresh" class="text-emerald-600 font-semibold text-sm flex items-center gap-1 hover:underline">
-                                        <span class="material-symbols-outlined text-sm">refresh</span>
-                                        Refresh
-                                    </button>
-                                </div>
-                                <div class="flex gap-2">
-                                    <a href="{{ route('stok-keluar.export.excel') }}" 
-                                    class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg text-sm font-medium transition flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-base">table_chart</span>
-                                        Export Excel
-                                    </a>
-                                    <a href="{{ route('stok-keluar.export.pdf') }}" 
-                                    class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm font-medium transition flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-base">picture_as_pdf</span>
-                                        Export PDF
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                <!-- Modal Filter -->
-                <div id="filterModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-                    <div class="bg-white rounded-xl p-6 w-96">
-                        <h3 class="font-bold text-lg mb-4">Filter Riwayat</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Dari Tanggal</label>
-                                <input type="date" id="filterStartDate" class="w-full border border-slate-200 rounded-lg px-3 py-2">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Sampai Tanggal</label>
-                                <input type="date" id="filterEndDate" class="w-full border border-slate-200 rounded-lg px-3 py-2">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Bahan</label>
-                                <select id="filterBahanId" class="w-full border border-slate-200 rounded-lg px-3 py-2">
-                                    <option value="">Semua Bahan</option>
-                                    @foreach($bahans as $bahan)
-                                        <option value="{{ $bahan->id }}">{{ $bahan->nama }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="flex justify-end gap-3 mt-6">
-                            <button id="btnCloseFilter" class="px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50">Batal</button>
-                            <button id="btnApplyFilter" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Terapkan</button>
-                        </div>
+        <!-- TABEL KANAN -->
+        <div class="lg:col-span-8">
+            <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+                <div class="px-4 py-3 border-b bg-slate-50 flex justify-between items-center flex-wrap gap-2">
+                    <h3 class="font-semibold text-slate-800">Riwayat Stok Keluar</h3>
+                    <div class="flex gap-2">
+                        <button id="btnFilter" class="text-emerald-600 dark:text-emerald-400 font-semibold text-sm flex items-center gap-1 hover:underline">
+                            <span class="material-symbols-outlined text-sm">filter_list</span>
+                            Filter
+                        </button>
+                        <button id="btnRefresh" class="text-emerald-600 dark:text-emerald-400 font-semibold text-sm flex items-center gap-1 hover:underline">
+                            <span class="material-symbols-outlined text-sm">refresh</span>
+                            Refresh
+                        </button>
                     </div>
                 </div>
 
-                <!-- Data Table -->
+                <!-- Tabel -->
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-50 border-b border-slate-200">
-                            <tr>
-                                <th class="px-6 py-4 font-label-caps text-label-caps text-slate-500">Bahan Makanan</th>
-                                <th class="px-6 py-4 font-label-caps text-label-caps text-slate-500">Jumlah</th>
-                                <th class="px-6 py-4 font-label-caps text-label-caps text-slate-500">Tanggal</th>
-                                <th class="px-6 py-4 font-label-caps text-label-caps text-slate-500">Keterangan</th>
+                    <table class="w-full text-left table-auto border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200">
+                                <th class="px-2 py-2 text-[10px] font-semibold text-slate-500 uppercase border-b border-slate-200">Bahan</th>
+                                <th class="px-2 py-2 text-[10px] font-semibold text-slate-500 uppercase text-center border-b border-slate-200">Jumlah</th>
+                                <th class="px-2 py-2 text-[10px] font-semibold text-slate-500 uppercase text-center border-b border-slate-200">Tanggal</th>
+                                <th class="px-2 py-2 text-[10px] font-semibold text-slate-500 uppercase border-b border-slate-200">Keterangan</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100" id="stokKeluarTableBody">
-                            @forelse($stokKeluar as $item)
-                                <tr class="hover:bg-slate-50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 rounded bg-orange-100 flex items-center justify-center text-orange-600">
-                                                <span class="material-symbols-outlined text-sm">outbox</span>
+                        <tbody>
+                            @forelse($stokKeluar as $index => $item)
+                                <tr class="hover:bg-slate-50/80 transition-colors table-row-stagger border-b border-slate-100" style="animation-delay: {{ 0.03 * ($index + 1) }}s">
+                                    <td class="px-2 py-2 align-middle border-b border-slate-100">
+                                        <div class="flex items-center gap-1.5">
+                                            <div class="w-6 h-6 rounded bg-orange-100 flex items-center justify-center flex-shrink-0">
+                                                <span class="material-symbols-outlined text-sm text-orange-600">outbox</span>
                                             </div>
-                                            <span class="font-semibold text-slate-900">{{ $item->bahan->nama ?? 'Bahan Dihapus' }}</span>
+                                            <span class="font-medium text-slate-800 text-xs truncate max-w-[140px]" title="{{ $item->bahan->nama ?? 'Bahan Dihapus' }}">
+                                                {{ $item->bahan->nama ?? 'Bahan Dihapus' }}
+                                            </span>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 font-medium text-slate-700">
-                                        {{ number_format($item->jumlah, 2) }} {{ $item->bahan->satuan ?? '' }}
+                                    <td class="px-2 py-2 text-center text-xs text-slate-700 align-middle border-b border-slate-100 whitespace-nowrap">
+                                        {{ number_format($item->jumlah, 0) }} <span class="text-[10px] text-slate-400">{{ $item->bahan->satuan ?? '' }}</span>
                                     </td>
-                                    <td class="px-6 py-4 text-slate-500">
-                                        {{ \Carbon\Carbon::parse($item->tanggal_keluar)->format('d M Y, H:i') }}
+                                    <td class="px-2 py-2 text-center text-xs text-slate-500 align-middle border-b border-slate-100 whitespace-nowrap">
+                                        {{ \Carbon\Carbon::parse($item->tanggal_keluar)->format('d/m/Y') }}
                                     </td>
-                                    <td class="px-6 py-4 text-slate-500">
-                                        {{ $item->keterangan ?: '-' }}
+                                    <td class="px-2 py-2 text-xs text-slate-500 align-middle border-b border-slate-100 truncate max-w-[180px]" title="{{ $item->keterangan ?? '-' }}">
+                                        {{ \Illuminate\Support\Str::limit($item->keterangan ?? '-', 30) }}
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-6 py-12 text-center text-slate-500">
-                                        <span class="material-symbols-outlined text-5xl mb-2">outbox</span>
+                                    <td colspan="4" class="px-2 py-8 text-center text-slate-400 text-sm border-b border-slate-100">
+                                        <span class="material-symbols-outlined text-4xl mb-2">outbox</span>
                                         <p>Belum ada riwayat stok keluar</p>
-                                        <p class="text-xs mt-1">Silakan catat pengeluaran stok pertama Anda</p>
                                     </td>
                                 </tr>
                             @endforelse
@@ -231,41 +151,36 @@
 
                 <!-- Pagination -->
                 @if(method_exists($stokKeluar, 'links'))
-                    <div class="px-6 py-4 bg-slate-50 border-t border-slate-100">
+                    <div class="px-4 py-3 border-t bg-slate-50">
                         {{ $stokKeluar->links() }}
                     </div>
                 @endif
             </div>
 
             <!-- Info Cards -->
-            <div class="mt-8 grid grid-cols-2 gap-6">
-                <!-- Rekomendasi Beli -->
-                <div class="bg-white border border-slate-200 rounded-xl p-6 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
-                        <span class="material-symbols-outlined">warning</span>
+            <div class="mt-6 grid grid-cols-2 gap-4">
+                <div class="bg-white border rounded-xl p-4 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-orange-600 text-lg">warning</span>
                     </div>
                     <div>
-                        <p class="font-label-caps text-label-caps text-slate-500">REKOMENDASI BELI</p>
-                        <p class="font-bold text-slate-900 mt-1">{{ $stokMenipis }} Bahan Stok Rendah</p>
-                        <p class="text-[10px] text-slate-400">Segera lakukan pemesanan ulang</p>
+                        <p class="text-[10px] font-semibold text-slate-500">REKOMENDASI BELI</p>
+                        <p class="font-bold text-slate-800 text-sm">{{ $stokMenipis }} Bahan Stok Rendah</p>
                     </div>
                 </div>
-
-                <!-- Total Stok Keluar -->
-                <div class="bg-white border border-slate-200 rounded-xl p-6 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-                        <span class="material-symbols-outlined">analytics</span>
+                <div class="bg-white border rounded-xl p-4 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-emerald-600 text-lg">analytics</span>
                     </div>
                     <div>
-                        <p class="font-label-caps text-label-caps text-slate-500">TOTAL STOK KELUAR</p>
-                        <p class="font-bold text-slate-900 mt-1">{{ number_format($totalStokKeluarSemua, 2) }} Unit</p>
-                        <p class="text-[10px] text-slate-400">Akumulasi semua pengeluaran</p>
+                        <p class="text-[10px] font-semibold text-slate-500">TOTAL STOK KELUAR</p>
+                        <p class="font-bold text-slate-800 text-sm">{{ number_format($totalStokKeluarSemua, 2) }} Unit</p>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
     </div>
-</main>
+</div>
 
 <script>
     // Update satuan dan cek stok saat bahan dipilih

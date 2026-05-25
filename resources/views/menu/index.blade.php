@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<main class="space-y-6">
+<main class="space-y-6 fade-in-up">
     <div class="max-w-7xl mx-auto">
         
         <!-- Alert -->
@@ -180,7 +180,6 @@
         </div>
     </div>
 </main>
-
 <script>
     // Konfirmasi hapus
     function confirmDelete(id, nama) {

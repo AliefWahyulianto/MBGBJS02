@@ -15,7 +15,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
+    <!-- KMS Admin Custom CSS -->
+    <link href="{{ asset('css/mbg.css') }}" rel="stylesheet">
     <!-- Dark Mode Script (sebelum CSS) -->
     <script>
         (function() {
@@ -119,383 +123,14 @@
         }
     </script>
     
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .chart-gradient {
-            background: linear-gradient(180deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0) 100%);
-        }
-        
-        /* Smooth transition untuk dark mode */
-        * {
-            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-        }
-        
-        /* Light mode (default) */
-        body {
-            background-color: #f8f9ff;
-        }
-        
-        /* Dark mode */
-        .dark body {
-            background-color: #1a1a2e;
-        }
-        
-        .dark .bg-white {
-            background-color: #16213e;
-            border-color: #2c3e66;
-        }
-        
-        .dark .bg-slate-50,
-        .dark .bg-slate-50/50 {
-            background-color: #0f172a;
-        }
-        
-        .dark .text-slate-800,
-        .dark .text-slate-900,
-        .dark .text-on-background {
-            color: #e2e8f0;
-        }
-        
-        .dark .text-slate-500,
-        .dark .text-slate-400,
-        .dark .text-on-surface-variant {
-            color: #94a3b8;
-        }
-        
-        .dark .border-slate-200,
-        .dark .border-slate-100,
-        .dark .border-slate-300 {
-            border-color: #2c3e66;
-        }
-        
-        .dark .bg-slate-100 {
-            background-color: #1e293b;
-        }
-        
-        .dark .shadow-sm {
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-        }
-        
-        /* Sidebar dark mode */
-        .dark aside {
-            background-color: #0f172a;
-            border-color: #2c3e66;
-        }
-        
-        /* Table dark mode */
-        .dark table thead tr {
-            background-color: #0f172a;
-        }
-        
-        .dark table tbody tr:hover {
-            background-color: #1e293b;
-        }
-        
-        /* Card dark mode */
-        .dark .bg-emerald-50,
-        .dark .bg-emerald-50\/50 {
-            background-color: #064e3b;
-        }
-        
-        .dark .bg-orange-50 {
-            background-color: #7c2d12;
-        }
-        
-        .dark .bg-red-50 {
-            background-color: #7f1d1d;
-        }
-        
-        .dark .bg-blue-50 {
-            background-color: #1e3a8a;
-        }
-
-        /* Top Bar */
-        .dark header {
-            background-color: #0f172a !important;
-            border-bottom-color: #2c3e66 !important;
-        }
-
-        .dark header .bg-slate-50 {
-            background-color: #1e293b !important;
-        }
-
-        .dark header input {
-            background-color: #1e293b !important;
-            color: #e2e8f0 !important;
-        }
-
-        .dark header input::placeholder {
-            color: #64748b !important;
-        }
-
-        .dark header .text-slate-900 {
-            color: #e2e8f0 !important;
-        }
-
-        .dark header .border-slate-200 {
-            border-color: #2c3e66 !important;
-        }
-
-        .dark header .bg-white\/90 {
-            background-color: #0f172a !important;
-            backdrop-filter: blur(4px);
-        }
-
-        /* Dark Mode Toggle Button */
-        .dark #darkModeToggle {
-            color: #94a3b8 !important;
-        }
-
-        .dark #darkModeToggle:hover {
-            color: #10b981 !important;
-        }
-
-        /* Sidebar User Profile */
-        .dark aside .bg-slate-50 {
-            background-color: #1e293b !important;
-        }
-
-        .dark aside .text-slate-900 {
-            color: #e2e8f0 !important;
-        }
-
-        .dark aside .text-slate-500 {
-            color: #94a3b8 !important;
-        }
-
-        .dark aside .border-slate-100 {
-            border-color: #2c3e66 !important;
-        }
-
-        .dark aside .bg-emerald-100 {
-            background-color: #064e3b !important;
-        }
-
-        .dark aside .text-emerald-600 {
-            color: #34d399 !important;
-        }
-
-        /* Dropdown/Modal */
-        .dark .bg-white\/90 {
-            background-color: #0f172a !important;
-        }
-
-        .dark .bg-slate-100 {
-            background-color: #1e293b !important;
-        }
-
-        /* Button hover states */
-        .dark button:hover {
-            background-color: #1e293b !important;
-        }
-
-        /* Scrollbar (opsional) */
-        .dark ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        .dark ::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-
-        .dark ::-webkit-scrollbar-thumb {
-            background: #2c3e66;
-            border-radius: 4px;
-        }
-
-        .dark ::-webkit-scrollbar-thumb:hover {
-            background: #3b5a9a;
-        }
-        .dark header {
-        background-color: #0f172a !important;
-        border-bottom-color: #2c3e66 !important;
-    }
-    
-        .dark header .bg-slate-50 {
-            background-color: #1e293b !important;
-        }
-        
-        .dark header input {
-            background-color: #1e293b !important;
-            color: #e2e8f0 !important;
-        }
-        
-        .dark header input::placeholder {
-            color: #64748b !important;
-        }
-        
-        .dark header .text-slate-900 {
-            color: #e2e8f0 !important;
-        }
-        
-        .dark header .border-slate-200 {
-            border-color: #2c3e66 !important;
-        }
-        
-        .dark header .bg-white\/90 {
-            background-color: #0f172a !important;
-        }
-        
-        .dark #darkModeToggle {
-            color: #94a3b8 !important;
-        }
-        
-        .dark #darkModeToggle:hover {
-            color: #10b981 !important;
-        }
-        
-        .dark aside .bg-slate-50 {
-            background-color: #1e293b !important;
-        }
-        
-        .dark aside .text-slate-900 {
-            color: #e2e8f0 !important;
-        }
-        
-        .dark aside .text-slate-500 {
-            color: #94a3b8 !important;
-        }
-        
-        .dark aside .border-slate-100 {
-            border-color: #2c3e66 !important;
-        }
-        
-        .dark aside .bg-emerald-100 {
-            background-color: #064e3b !important;
-        }
-        
-        .dark aside .text-emerald-600 {
-            color: #34d399 !important;
-        }
-        
-        .dark .bg-white\/90 {
-            background-color: #0f172a !important;
-        }
-        
-        .dark .bg-slate-100 {
-            background-color: #1e293b !important;
-        }
-        
-        .dark button:hover {
-            background-color: #1e293b !important;
-        }
-        
-        /* Dark mode scrollbar */
-        .dark ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        
-        .dark ::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-        
-        .dark ::-webkit-scrollbar-thumb {
-            background: #2c3e66;
-            border-radius: 4px;
-        }
-        
-        .dark ::-webkit-scrollbar-thumb:hover {
-            background: #3b5a9a;
-        }
-        /* Dark mode untuk form input */
-        .dark input:not([type="checkbox"]):not([type="radio"]),
-        .dark select,
-        .dark textarea {
-            background-color: #1e293b !important;
-            border-color: #2c3e66 !important;
-            color: #e2e8f0 !important;
-        }
-
-        .dark input:focus,
-        .dark select:focus,
-        .dark textarea:focus {
-            border-color: #10b981 !important;
-            outline: none !important;
-            ring: 2px solid #10b981 !important;
-        }
-
-        .dark input::placeholder,
-        .dark textarea::placeholder {
-            color: #64748b !important;
-        }
-
-        .dark label {
-            color: #94a3b8 !important;
-        }
-
-        /* Dark mode untuk select option */
-        .dark select option {
-            background-color: #1e293b !important;
-            color: #e2e8f0 !important;
-        }
-
-        /* Dark mode untuk file input */
-        .dark input[type="file"] {
-            background-color: #1e293b !important;
-            border-color: #2c3e66 !important;
-            color: #e2e8f0 !important;
-        }
-
-        .dark input[type="file"]::file-selector-button {
-            background-color: #2c3e66 !important;
-            color: #e2e8f0 !important;
-            border: none !important;
-            padding: 8px 16px !important;
-            border-radius: 8px !important;
-            cursor: pointer !important;
-        }
-
-        .dark input[type="file"]::file-selector-button:hover {
-            background-color: #3b5a9a !important;
-        }
-
-        /* Dark mode untuk card dan border */
-        .dark .bg-white {
-            background-color: #16213e !important;
-        }
-
-        .dark .border-slate-200,
-        .dark .border-slate-300 {
-            border-color: #2c3e66 !important;
-        }
-
-        .dark .bg-slate-50,
-        .dark .bg-slate-50\/50 {
-            background-color: #0f172a !important;
-        }
-
-        .dark .text-slate-500,
-        .dark .text-slate-400,
-        .dark .text-slate-600 {
-            color: #94a3b8 !important;
-        }
-
-        .dark .text-slate-700,
-        .dark .text-slate-800,
-        .dark .text-slate-900 {
-            color: #e2e8f0 !important;
-        }
-            /* TAMBAHKAN CSS FORM INPUT DARK MODE DI SINI */
-        .dark input:not([type="checkbox"]):not([type="radio"]),
-        .dark select,
-        .dark textarea {
-            background-color: #1e293b !important;
-            border-color: #2c3e66 !important;
-            color: #e2e8f0 !important;
-        }
-    </style>
 </head>
 <body class="bg-background font-body-md text-on-background antialiased">
 
     <!-- Sidebar Navigation -->
-    <aside class="fixed left-0 top-0 h-full w-64 bg-white border-r border-slate-200 shadow-sm z-50 flex flex-col">
+   <aside class="fixed left-0 top-0 h-full w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 shadow-sm z-50 flex flex-col sidebar-slide-in">
         <!-- Logo Area -->
         <div class="p-6 flex items-center gap-3">
-            <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-white">
+            <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-white logo-animate">
                 <span class="material-symbols-outlined">restaurant_menu</span>
             </div>
             <div>
@@ -511,10 +146,10 @@
                 <!-- DASHBOARD -->
                 <li>
                     <a href="{{ route('dashboard.index') }}" 
-                       class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
-                       {{ request()->routeIs('dashboard.index') 
-                              ? 'text-primary bg-emerald-50/50 border-l-4 border-primary font-bold' 
-                              : 'text-slate-500 hover:text-primary hover:bg-slate-50' }}">
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 nav-item-hover
+                    {{ request()->routeIs('dashboard.index') 
+                            ? 'text-primary bg-emerald-50/50 dark:bg-emerald-900/30 border-l-4 border-primary font-bold' 
+                            : 'text-slate-500 dark:text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-700/50' }}">
                         <span class="material-symbols-outlined">dashboard</span>
                         <span class="text-sm">Dashboard</span>
                     </a>
@@ -594,6 +229,16 @@
                                     : 'text-slate-500 hover:text-primary hover:bg-slate-50' }}">
                                 <span class="material-symbols-outlined text-sm">storefront</span>
                                 <span class="text-sm">Supplier</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('retur-bahan.index') }}" 
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200
+                            {{ request()->routeIs('retur-bahan.*') 
+                                    ? 'text-primary bg-emerald-50/50 border-l-4 border-primary font-bold' 
+                                    : 'text-slate-500 hover:text-primary hover:bg-slate-50' }}">
+                                <span class="material-symbols-outlined text-sm">delete_forever</span>
+                                <span class="text-sm">Retur / Rusak</span>
                             </a>
                         </li>
                         <li>
@@ -761,6 +406,36 @@
                 </li>
                 @endif
                 @endauth
+
+                @auth
+                @if(Auth::user()->role == 'admin')
+                <li>
+                    <a href="{{ route('activity-log.index') }}" 
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
+                    {{ request()->routeIs('activity-log.*') 
+                            ? 'text-primary bg-emerald-50/50 border-l-4 border-primary font-bold' 
+                            : 'text-slate-500 hover:text-primary hover:bg-slate-50' }}">
+                        <span class="material-symbols-outlined">history</span>
+                        <span class="text-sm font-medium">Log Aktivitas</span>
+                    </a>
+                </li>
+                @endif
+                @endauth
+                
+                @auth
+                @if(Auth::user()->role == 'admin')
+                <li>
+                    <a href="{{ route('backup.index') }}" 
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
+                    {{ request()->routeIs('backup.*') 
+                            ? 'text-primary bg-emerald-50/50 border-l-4 border-primary font-bold' 
+                            : 'text-slate-500 hover:text-primary hover:bg-slate-50' }}">
+                        <span class="material-symbols-outlined">database</span>
+                        <span class="text-sm font-medium">Backup DB</span>
+                    </a>
+                </li>
+                @endif
+                @endauth
             </ul>
         </nav>
 
@@ -800,8 +475,7 @@
     <div class="ml-64 min-h-screen flex flex-col">
         
         <!-- Top Bar -->
-        <header class="fixed top-0 right-0 z-40 w-[calc(100%-16rem)] h-16 bg-white/90 backdrop-blur-md border-b border-slate-200 flex justify-between items-center px-8">
-            <!-- Search Bar -->
+        <header class="fixed top-0 right-0 z-40 w-[calc(100%-16rem)] h-16 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 flex justify-between items-center px-8 topbar-slide-in">
             <div class="flex items-center gap-4 flex-1">
                 <div class="relative w-full max-w-md">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
@@ -846,7 +520,7 @@
         </header>
 
         <!-- Main Content -->
-        <main class="mt-16 p-8 flex-1">
+        <main class="mt-16 p-8 flex-1 content-fade-in">
             @yield('content')
         </main>
     </div>
@@ -962,9 +636,82 @@
                 });
         }
 
-        // Load notifikasi setiap 1 menit
-        setInterval(loadNotifications, 60000);
-        loadNotifications();
+            // Load notifikasi setiap 1 menit
+            setInterval(loadNotifications, 60000);
+            loadNotifications();
+
+            // Tambah class animasi saat halaman load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animasi untuk logo
+            const logo = document.querySelector('.logo-animate');
+            if (logo) {
+                logo.classList.add('logo-animate');
+            }
+            
+            // Animasi untuk notifikasi badge (jika ada notifikasi baru)
+            const notifBadge = document.querySelector('.notif-badge');
+            if (notifBadge && notifBadge.innerText > 0) {
+                notifBadge.classList.add('notif-badge-bounce');
+                setTimeout(() => {
+                    notifBadge.classList.remove('notif-badge-bounce');
+                }, 1000);
+            }
+            
+            // Animasi untuk menu item aktif
+            const activeMenuItem = document.querySelector('.border-primary');
+            if (activeMenuItem) {
+                activeMenuItem.classList.add('nav-item-hover');
+            }
+        });
+        
+        // Animasi saat klik tombol (ripple effect)
+        document.querySelectorAll('.ripple-effect').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                this.appendChild(ripple);
+                
+                const x = e.clientX - e.target.offsetLeft;
+                const y = e.clientY - e.target.offsetTop;
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 500);
+            });
+        });
+    </script>
+
+    <style>
+        /* Style untuk ripple effect */
+        .ripple-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            width: 100px;
+            height: 100px;
+            margin-top: -50px;
+            margin-left: -50px;
+            animation: ripple-animation 0.5s ease-out;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            from {
+                transform: scale(0);
+                opacity: 1;
+            }
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
     </script>
 </body>
 </html>

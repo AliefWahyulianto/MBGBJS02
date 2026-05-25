@@ -17,12 +17,19 @@ use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\BackupController;
+use App\Http\Controllers\ReturBahanController;
+
 // ========== GUEST ROUTES (BELUM LOGIN) ==========
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// ========== AUTH ROUTES (WAJIB LOGIN) ==========
+// ========== AUTH ROUTES (LOGIN, REGISTER, FORGOT PASSWORD) ==========
+require __DIR__.'/auth.php';
+
+// ========== ROUTE YANG MEMBUTUHKAN LOGIN ==========
 Route::middleware(['auth'])->group(function () {
     
     // Dashboard
@@ -110,38 +117,63 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export/pdf', [LaporanController::class, 'exportPdf'])->name('export.pdf');
     });
     
+    // ========== SETTING ==========
+    Route::prefix('setting')->name('setting.')->group(function () {
+        Route::get('/', [SettingController::class, 'index'])->name('index');
+        Route::put('/', [SettingController::class, 'update'])->name('update');
+        Route::get('/clear-cache', [SettingController::class, 'clearCache'])->name('clear-cache');
+        Route::get('/backup', [SettingController::class, 'backup'])->name('backup');
+    });
+    
+    // ========== SUPPLIER ==========
+    Route::resource('supplier', SupplierController::class);
+    
+    // ========== NOTIFIKASI ==========
+    Route::prefix('notification')->name('notification.')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        Route::get('/mark-read/{id}', [NotificationController::class, 'markAsRead'])->name('mark-read');
+        Route::get('/mark-all-read', [NotificationController::class, 'markAllRead'])->name('mark-all-read');
+        Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
+        Route::get('/latest', [NotificationController::class, 'latest'])->name('latest');
+    });
+    
+    // ========== USER MANAGEMENT ==========
+    Route::resource('user', UserController::class);
+    Route::post('/user/{user}/reset-password', [UserController::class, 'resetPassword'])->name('user.reset-password');
+    Route::post('/user/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggle-status');
+    
+    // ========== ACTIVITY LOG ==========
+    Route::prefix('activity-log')->name('activity-log.')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'index'])->name('index');
+        Route::get('/{activityLog}', [ActivityLogController::class, 'show'])->name('show');
+        Route::delete('/clear', [ActivityLogController::class, 'clear'])->name('clear');
+    });
+    
+    // ========== BACKUP & RESTORE ==========
+    Route::prefix('backup')->name('backup.')->group(function () {
+        Route::get('/', [BackupController::class, 'index'])->name('index');
+        Route::post('/create', [BackupController::class, 'backup'])->name('create');
+        Route::get('/download/{id}', [BackupController::class, 'download'])->name('download');
+        Route::get('/delete/{id}', [BackupController::class, 'destroy'])->name('delete');
+        Route::get('/restore/{id}', [BackupController::class, 'restore'])->name('restore');
+    });
+
+    // ========== DASHBOARD ==========
+    Route::prefix('dashboard')->name('dashboard.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('index');
+    Route::get('/filter-7-hari', [DashboardController::class, 'filter7Hari'])->name('filter-7-hari');
+    Route::get('/export-pdf', [DashboardController::class, 'exportPdf'])->name('export-pdf');
+    Route::get('/export-excel', [DashboardController::class, 'exportExcel'])->name('export-excel');
+    });
+    // Retur Bahan
+    Route::resource('retur-bahan', ReturBahanController::class);
+    Route::get('/retur-bahan/{returBahan}', [ReturBahanController::class, 'show'])->name('retur-bahan.show');
+    
     // ========== PROFILE ==========
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    });
-
-// Setting
-    Route::prefix('setting')->name('setting.')->group(function () {
-    Route::get('/', [SettingController::class, 'index'])->name('index');
-    Route::put('/', [SettingController::class, 'update'])->name('update');
-    Route::get('/clear-cache', [SettingController::class, 'clearCache'])->name('clear-cache');
-    Route::get('/backup', [SettingController::class, 'backup'])->name('backup');
-    });
-
-// Supplier
-Route::resource('supplier', SupplierController::class);
-
-// Notifikasi
-Route::prefix('notification')->name('notification.')->group(function () {
-    Route::get('/', [NotificationController::class, 'index'])->name('index');
-    Route::get('/mark-read/{id}', [NotificationController::class, 'markAsRead'])->name('mark-read');
-    Route::get('/mark-all-read', [NotificationController::class, 'markAllRead'])->name('mark-all-read');
-    Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
-    Route::get('/latest', [NotificationController::class, 'latest'])->name('latest');
+    
+    // ========== THEME (DARK MODE) ==========
+    Route::post('/setting/theme', [ThemeController::class, 'setTheme'])->name('setting.theme');
 });
-
-// User Management (hanya admin)
-Route::resource('user', UserController::class);
-Route::post('/user/{user}/reset-password', [UserController::class, 'resetPassword'])->name('user.reset-password');
-Route::post('/user/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggle-status');
-
-// Theme (Dark Mode)
-Route::post('/setting/theme', [ThemeController::class, 'setTheme'])->name('setting.theme');
-// ========== AUTH ROUTES (LOGIN, REGISTER, FORGOT PASSWORD) ==========
-require __DIR__.'/auth.php';

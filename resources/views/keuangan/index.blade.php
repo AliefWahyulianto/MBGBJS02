@@ -2,33 +2,33 @@
 
 @section('content')
 <!-- MAIN CONTENT - Dashboard Keuangan -->
-<main class="space-y-6">
+<main class="space-y-6 fade-in-up">
     <div class="max-w-7xl mx-auto">
         
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-    <div>
-        <h1 class="text-2xl font-bold text-slate-800">Dashboard Keuangan</h1>
-        <p class="text-slate-500 text-sm mt-1">Pantau arus kas masuk dan keluar secara transparan</p>
-    </div>
-    <div class="flex gap-3">
-        <!-- Tombol Export -->
-        <a href="{{ route('keuangan.export.excel') }}" 
-           class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg text-sm font-medium transition flex items-center gap-1">
-            <span class="material-symbols-outlined text-base">table_chart</span>
-            Export Excel
-        </a>
-        <a href="{{ route('keuangan.export.pdf') }}" 
-           class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm font-medium transition flex items-center gap-1">
-            <span class="material-symbols-outlined text-base">picture_as_pdf</span>
-            Export PDF
-        </a>
-        <a href="{{ route('keuangan.create') }}" 
-           class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-semibold transition">
-            <span class="material-symbols-outlined text-lg">add</span>
-            Tambah Transaksi
-        </a>
-    </div>
-</div>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">Dashboard Keuangan</h1>
+                <p class="text-slate-500 text-sm mt-1">Pantau arus kas masuk dan keluar secara transparan</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- Tombol Export -->
+                <a href="{{ route('keuangan.export.excel') }}" 
+                class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg text-sm font-medium transition flex items-center gap-1">
+                    <span class="material-symbols-outlined text-base">table_chart</span>
+                    Export Excel
+                </a>
+                <a href="{{ route('keuangan.export.pdf') }}" 
+                class="px-3 py-1.5 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium transition flex items-center gap-1">
+                    <span class="material-symbols-outlined text-base">picture_as_pdf</span>
+                    Export PDF
+                </a>
+                <a href="{{ route('keuangan.create') }}" 
+                class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-primary text-white rounded-xl font-semibold text-sm transition shadow-md hover:shadow-lg">
+                    <span class="material-symbols-outlined text-lg">add</span>
+                    Tambah Transaksi
+                </a>
+            </div>
+        </div>
 
         <!-- FILTER TANGGAL -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 mb-6">
@@ -52,19 +52,19 @@
         <!-- STATISTIK KARTU -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <!-- Total Pemasukan -->
-            <!-- Contoh untuk menampilkan angka 600000000 menjadi 600 Juta -->
-                <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-slate-500 text-xs font-semibold uppercase">Total Pemasukan</p>
-                            <p class="text-2xl font-bold text-emerald-600 mt-1">
-                                Rp {{ number_format($totalMasuk / 1000000, 0, ',', '.') }} Juta
-                                <!-- Atau pakai cara ini: -->
-                                <!-- Rp {{ number_format($totalMasuk, 0, ',', '.') }} -->
-                            </p>
-                        </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-500 text-xs font-semibold uppercase">Total Pemasukan</p>
+                        <p class="text-2xl font-bold text-emerald-600 mt-1">
+                            Rp {{ number_format($totalMasuk / 1000000, 0, ',', '.') }} Juta
+                        </p>
+                    </div>
+                    <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-emerald-600">arrow_downward</span>
                     </div>
                 </div>
+            </div>
 
             <!-- Total Pengeluaran -->
             <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">

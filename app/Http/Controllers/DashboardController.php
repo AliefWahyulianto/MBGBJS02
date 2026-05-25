@@ -7,154 +7,248 @@ use App\Models\StokMasuk;
 use App\Models\StokKeluar;
 use App\Models\Transaksi;
 use App\Models\Menu;
+use App\Models\Produksi;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Setting;
+use App\Exports\DashboardExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        // Filter tahun & bulan
+        $tahun = $request->tahun ?? date('Y');
+        $bulan = $request->bulan ?? date('m');
+        
         // ========== STATISTIK BAHAN ==========
         $totalBahan = Bahan::count();
         $stokMenipis = Bahan::whereColumn('stok', '<=', 'stok_minimal')->where('stok', '>', 0)->count();
         $stokHabis = Bahan::where('stok', 0)->count();
         
-        // Hitung persen perubahan stok menipis (contoh: dibanding minggu lalu)
-        $stokMenipisLalu = Bahan::whereColumn('stok', '<=', 'stok_minimal')->where('stok', '>', 0)
-            ->where('updated_at', '<', now()->subDays(7))
-            ->count();
-        $persenStokMenipis = $stokMenipisLalu > 0 
-            ? round(($stokMenipis - $stokMenipisLalu) / $stokMenipisLalu * 100, 1)
-            : 0;
-        
-        // ========== PENGELUARAN HARI INI ==========
-        $pengeluaranHariIni = StokKeluar::whereDate('tanggal_keluar', today())
+        // ========== PENGELUARAN BULAN INI ==========
+        $pengeluaranBulanIni = StokKeluar::whereMonth('tanggal_keluar', $bulan)
+            ->whereYear('tanggal_keluar', $tahun)
             ->join('bahans', 'stok_keluar.bahan_id', '=', 'bahans.id')
             ->sum(DB::raw('stok_keluar.jumlah * bahans.harga_beli'));
         
-        $pengeluaranKemarin = StokKeluar::whereDate('tanggal_keluar', today()->subDay())
+        $pengeluaranBulanLalu = StokKeluar::whereMonth('tanggal_keluar', $bulan - 1)
+            ->whereYear('tanggal_keluar', $tahun)
             ->join('bahans', 'stok_keluar.bahan_id', '=', 'bahans.id')
             ->sum(DB::raw('stok_keluar.jumlah * bahans.harga_beli'));
         
-        $persenPerubahanPengeluaran = $pengeluaranKemarin > 0 
-            ? round(($pengeluaranHariIni - $pengeluaranKemarin) / $pengeluaranKemarin * 100, 1)
+        $persenPerubahan = $pengeluaranBulanLalu > 0 
+            ? round(($pengeluaranBulanIni - $pengeluaranBulanLalu) / $pengeluaranBulanLalu * 100, 1)
             : 0;
         
-        // ========== CHART PENGELUARAN MINGGUAN ==========
-        $weeklyExpenses = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i);
-            $expense = StokKeluar::whereDate('tanggal_keluar', $date)
+        // ========== CHART PENGELUARAN PER BULAN ==========
+        $monthlyExpenses = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $expense = StokKeluar::whereMonth('tanggal_keluar', $i)
+                ->whereYear('tanggal_keluar', $tahun)
                 ->join('bahans', 'stok_keluar.bahan_id', '=', 'bahans.id')
                 ->sum(DB::raw('stok_keluar.jumlah * bahans.harga_beli'));
             
-            $weeklyExpenses[] = [
-                'day' => $date->locale('id')->shortDayName,
-                'amount' => $expense,
-                'height' => 0 // akan dihitung di view
+            $monthlyExpenses[] = [
+                'month' => $this->getMonthName($i),
+                'amount' => $expense
             ];
         }
         
-        // Cari max untuk height chart
-        $maxExpense = max(array_column($weeklyExpenses, 'amount')) ?: 1;
-        foreach ($weeklyExpenses as &$item) {
-            $item['height'] = ($item['amount'] / $maxExpense) * 100;
+        // ========== CHART PRODUKSI PER BULAN ==========
+        $monthlyProduction = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $production = Produksi::whereMonth('tanggal_produksi', $i)
+                ->whereYear('tanggal_produksi', $tahun)
+                ->sum('jumlah_porsi');
+            
+            $monthlyProduction[] = [
+                'month' => $this->getMonthName($i),
+                'total' => $production
+            ];
         }
         
-        // ========== KATEGORI TERPOPULER ==========
-        $kategoriTerpopuler = Bahan::select('kategori', DB::raw('COUNT(*) as total'))
-            ->groupBy('kategori')
+        // ========== TOP 5 BAHAN TERPAKAI ==========
+        $topBahan = StokKeluar::select('bahan_id', DB::raw('SUM(jumlah) as total'))
+            ->whereYear('tanggal_keluar', $tahun)
+            ->with('bahan')
+            ->groupBy('bahan_id')
             ->orderBy('total', 'desc')
-            ->limit(4)
+            ->limit(5)
             ->get();
         
-        $totalKategori = $kategoriTerpopuler->sum('total');
-        foreach ($kategoriTerpopuler as $kat) {
-            $kat->persen = $totalKategori > 0 ? round(($kat->total / $totalKategori) * 100, 1) : 0;
-        }
+        // ========== AKTIVITAS TERBARU ==========
+        $aktivitasTerbaru = StokMasuk::with('bahan')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function($item) {
+                return [
+                    'type' => 'masuk',
+                    'title' => 'Stok Masuk: ' . ($item->bahan->nama ?? 'Bahan Dihapus'),
+                    'jumlah' => $item->jumlah,
+                    'satuan' => $item->bahan->satuan ?? '',
+                    'time' => $item->created_at->diffForHumans(),
+                    'icon' => 'add_circle',
+                    'icon_bg' => 'bg-emerald-50',
+                    'icon_color' => 'text-emerald-600'
+                ];
+            });
         
-        // ========== AKTIVITAS TERKINI ==========
-        $aktivitasTerbaru = collect();
+        $stokKeluarTerbaru = StokKeluar::with('bahan')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function($item) {
+                return [
+                    'type' => 'keluar',
+                    'title' => 'Stok Keluar: ' . ($item->bahan->nama ?? 'Bahan Dihapus'),
+                    'jumlah' => $item->jumlah,
+                    'satuan' => $item->bahan->satuan ?? '',
+                    'time' => $item->created_at->diffForHumans(),
+                    'icon' => 'remove_circle',
+                    'icon_bg' => 'bg-orange-50',
+                    'icon_color' => 'text-orange-500'
+                ];
+            });
         
-        // Stok Masuk terbaru
-        $stokMasukTerbaru = StokMasuk::with('bahan')->orderBy('created_at', 'desc')->limit(5)->get();
-        foreach ($stokMasukTerbaru as $item) {
-            $aktivitasTerbaru->push([
-                'nama' => $item->bahan->nama ?? 'Bahan Dihapus',
-                'tipe' => 'masuk',
-                'tipe_text' => 'Masuk',
-                'tipe_color' => 'text-emerald-600',
-                'tipe_bg' => 'bg-emerald-50',
-                'icon' => 'call_received',
-                'jumlah' => number_format($item->jumlah, 2) . ' ' . ($item->bahan->satuan ?? ''),
-                'waktu' => $item->created_at->diffForHumans(),
-                'status' => 'Verified',
-                'status_color' => 'bg-emerald-100 text-emerald-700'
-            ]);
-        }
+        $aktivitasTerbaru = $aktivitasTerbaru->concat($stokKeluarTerbaru)->sortByDesc('time')->take(5);
         
-        // Stok Keluar terbaru
-        $stokKeluarTerbaru = StokKeluar::with('bahan')->orderBy('created_at', 'desc')->limit(5)->get();
-        foreach ($stokKeluarTerbaru as $item) {
-            $aktivitasTerbaru->push([
-                'nama' => $item->bahan->nama ?? 'Bahan Dihapus',
-                'tipe' => 'keluar',
-                'tipe_text' => 'Keluar',
-                'tipe_color' => 'text-red-500',
-                'tipe_bg' => 'bg-red-50',
-                'icon' => 'call_made',
-                'jumlah' => number_format($item->jumlah, 2) . ' ' . ($item->bahan->satuan ?? ''),
-                'waktu' => $item->created_at->diffForHumans(),
-                'status' => $item->keterangan ? 'Diproses' : 'Verified',
-                'status_color' => $item->keterangan ? 'bg-orange-100 text-orange-700' : 'bg-emerald-100 text-emerald-700'
-            ]);
-        }
+        // ========== TAMBAHAN FITUR ==========
         
-        $aktivitasTerbaru = $aktivitasTerbaru->sortByDesc('waktu')->take(5);
+        // 1. Total Pemasukan vs Pengeluaran
+        $totalPemasukan = Transaksi::where('jenis', 'masuk')
+            ->whereYear('tanggal_transaksi', $tahun)
+            ->sum('jumlah');
+        $totalPengeluaran = Transaksi::where('jenis', 'keluar')
+            ->whereYear('tanggal_transaksi', $tahun)
+            ->sum('jumlah');
+        $saldo = $totalPemasukan - $totalPengeluaran;
         
-        // ========== STATISTIK TAMBAHAN ==========
-        $totalMenu = Menu::count();
-        $menuTersedia = Menu::where('status', 'tersedia')->count();
-        $totalTransaksiBulanIni = Transaksi::whereMonth('tanggal_transaksi', now()->month)->count();
+        // 2. Stok Terendah (Top 5)
+        $stokTerendah = Bahan::orderBy('stok', 'asc')->limit(5)->get();
+        
+        // 3. Menu Terlaris (Top 5)
+        $menuTerlaris = Produksi::select('menu_id', DB::raw('SUM(jumlah_porsi) as total'))
+            ->whereYear('tanggal_produksi', $tahun)
+            ->with('menu')
+            ->groupBy('menu_id')
+            ->orderBy('total', 'desc')
+            ->limit(5)
+            ->get();
+        
+        // 4. Notifikasi Terbaru
+        $notifikasiTerbaru = Notification::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+        
+        // 5. Kategori Stok (Donut Chart)
+        $kategoriStok = Bahan::select('kategori', DB::raw('SUM(stok) as total'))
+            ->whereNotNull('kategori')
+            ->groupBy('kategori')
+            ->get();
+        
+        // ========== DATA UNTUK FILTER ==========
+        $tahunList = range(date('Y') - 2, date('Y'));
         
         return view('dashboard.index', compact(
             'totalBahan',
             'stokMenipis',
             'stokHabis',
-            'persenStokMenipis',
-            'pengeluaranHariIni',
-            'persenPerubahanPengeluaran',
-            'weeklyExpenses',
-            'maxExpense',
-            'kategoriTerpopuler',
+            'pengeluaranBulanIni',
+            'persenPerubahan',
+            'monthlyExpenses',
+            'monthlyProduction',
+            'topBahan',
             'aktivitasTerbaru',
-            'totalMenu',
-            'menuTersedia',
-            'totalTransaksiBulanIni'
+            'tahun',
+            'bulan',
+            'tahunList',
+            'totalPemasukan',
+            'totalPengeluaran',
+            'saldo',
+            'stokTerendah',
+            'menuTerlaris',
+            'notifikasiTerbaru',
+            'kategoriStok'
         ));
     }
     
-    // Filter 7 hari terakhir via AJAX
-    public function filter7Hari(Request $request)
+    private function getMonthName($month)
     {
-        $startDate = now()->subDays(7);
-        $endDate = now();
+        $months = [
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+            5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
+            9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+        ];
+        return $months[$month];
+    }
+
+    public function exportPdf(Request $request)
+    {
+        // Ambil data yang sama dengan dashboard
+        $tahun = $request->tahun ?? date('Y');
+        $bulan = $request->bulan ?? date('m');
         
-        $totalPengeluaran = StokKeluar::whereBetween('tanggal_keluar', [$startDate, $endDate])
-            ->join('bahans', 'stok_keluar.bahan_id', '=', 'bahans.id')
-            ->sum(DB::raw('stok_keluar.jumlah * bahans.harga_beli'));
+        // Statistik bahan
+        $totalBahan = Bahan::count();
+        $stokMenipis = Bahan::whereColumn('stok', '<=', 'stok_minimal')->where('stok', '>', 0)->count();
+        $stokHabis = Bahan::where('stok', 0)->count();
         
-        $pengeluaranSebelumnya = StokKeluar::whereBetween('tanggal_keluar', [now()->subDays(14), now()->subDays(8)])
-            ->join('bahans', 'stok_keluar.bahan_id', '=', 'bahans.id')
-            ->sum(DB::raw('stok_keluar.jumlah * bahans.harga_beli'));
+        // Keuangan
+        $totalPemasukan = Transaksi::where('jenis', 'masuk')
+            ->whereYear('tanggal_transaksi', $tahun)
+            ->sum('jumlah');
+        $totalPengeluaran = Transaksi::where('jenis', 'keluar')
+            ->whereYear('tanggal_transaksi', $tahun)
+            ->sum('jumlah');
+        $saldo = $totalPemasukan - $totalPengeluaran;
         
-        $persenPerubahan = $pengeluaranSebelumnya > 0 
-            ? round(($totalPengeluaran - $pengeluaranSebelumnya) / $pengeluaranSebelumnya * 100, 1)
-            : 0;
+        // Chart data
+        $monthlyExpenses = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $expense = StokKeluar::whereMonth('tanggal_keluar', $i)
+                ->whereYear('tanggal_keluar', $tahun)
+                ->join('bahans', 'stok_keluar.bahan_id', '=', 'bahans.id')
+                ->sum(DB::raw('stok_keluar.jumlah * bahans.harga_beli'));
+            
+            $monthlyExpenses[] = [
+                'month' => $this->getMonthName($i),
+                'amount' => $expense
+            ];
+        }
         
-        return response()->json([
-            'total' => $totalPengeluaran,
-            'persen' => $persenPerubahan
-        ]);
+        // Top 5 bahan terpakai
+        $topBahan = StokKeluar::select('bahan_id', DB::raw('SUM(jumlah) as total'))
+            ->whereYear('tanggal_keluar', $tahun)
+            ->with('bahan')
+            ->groupBy('bahan_id')
+            ->orderBy('total', 'desc')
+            ->limit(5)
+            ->get();
+        
+        // Data untuk filter
+        $tahunList = range(date('Y') - 2, date('Y'));
+        
+        // Nama dapur dari setting
+        $dapurName = Setting::get('dapur_name', 'Dapur MBG Bojongsari 02');
+        $dapurAddress = Setting::get('dapur_address', 'Bojongsari 02');
+        
+        $data = compact(
+            'totalBahan', 'stokMenipis', 'stokHabis',
+            'totalPemasukan', 'totalPengeluaran', 'saldo',
+            'monthlyExpenses', 'topBahan', 'tahun', 'bulan',
+            'dapurName', 'dapurAddress'
+        );
+        
+        $pdf = Pdf::loadView('exports.dashboard-pdf', $data);
+        $pdf->setPaper('A4', 'landscape');
+        
+        return $pdf->download('laporan-dashboard-' . date('Y-m-d') . '.pdf');
     }
 }
