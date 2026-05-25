@@ -5,7 +5,7 @@
   <img src="https://img.shields.io/badge/TailwindCSS-3.x-blue?style=for-the-badge&logo=tailwindcss"/>
   <img src="https://img.shields.io/badge/MySQL-8.x-orange?style=for-the-badge&logo=mysql"/>
   <img src="https://img.shields.io/badge/Alpine.js-3.x-green?style=for-the-badge&logo=alpine.js"/>
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style-for-the-badge"/>
 </div>
 
 <br>
@@ -23,36 +23,50 @@
 - CRUD bahan baku dengan upload gambar
 - Tracking stok real-time
 - Peringatan stok menipis otomatis
+- Filter berdasarkan kategori dan status
 
 ### 📥 Stok Masuk & 📤 Stok Keluar
 - Pencatatan stok masuk dengan harga otomatis
 - Stok keluar untuk produksi
 - Riwayat transaksi lengkap
 - Integrasi dengan Supplier
+- Upload bukti invoice
 
 ### 🔄 Stok Opname & Stok Mengendap
 - Koreksi stok fisik vs sistem
 - Catat sisa bahan produksi
 - Gunakan kembali bahan sisa
+- Hitung selisih otomatis
+
+### 🗑️ Retur & Bahan Rusak
+- Catat bahan rusak, kadaluarsa, atau tercecer
+- Otomatis kurangi stok
+- Statistik per jenis retur
+- Estimasi kerugian
 
 ### 🍳 Manajemen Menu & Resep
 - CRUD menu makanan
 - Komposisi bahan per menu (BOM)
 - Hitung HPP (Harga Pokok Produksi)
+- Status ketersediaan menu
 
 ### 🏭 Produksi Harian
 - Catat produksi berdasarkan menu
 - Hitung kebutuhan bahan otomatis
 - Kurangi stok secara real-time
+- Update sisa bahan produksi
 
 ### 💰 Keuangan
 - Pencatatan pemasukan & pengeluaran
 - Otomatis dari stok masuk/keluar
 - Laporan keuangan periodik
+- Grafik arus kas
 
 ### 📊 Laporan & Export
 - Laporan stok, produksi, keuangan
 - Export ke Excel & PDF
+- Filter rentang tanggal & kategori
+- Download dashboard ke PDF
 
 ### 👥 Manajemen User
 - Multi-role: Admin, Manager, Staff, Driver
@@ -64,20 +78,42 @@
 - Data supplier lengkap
 - Riwayat pembelian
 - Tracking total transaksi & pembelian
+- Rating supplier
 
 ### 🔔 Notifikasi
 - Notifikasi stok habis & menipis
 - Dropdown notifikasi real-time
 - Tandai dibaca & semua dibaca
+- Notifikasi otomatis setiap 6 jam
+
+### 📝 Log Aktivitas
+- Catat semua aktivitas user
+- Filter berdasarkan modul, aksi, user, tanggal
+- Hapus log otomatis
+- Hanya admin yang bisa akses
+
+### 💾 Backup & Restore Database
+- Backup database ke file SQL
+- Download & restore backup
+- Hapus backup lama otomatis (>30 hari)
+- Log histori backup
 
 ### 🌙 Dark Mode
 - Toggle light/dark mode
 - Preferensi tersimpan otomatis
+- Konsisten di semua halaman
 
 ### ⚙️ Pengaturan Sistem
 - Profil dapur (nama, alamat, logo, telepon)
 - Preferensi stok, keuangan, laporan
 - Backup & clear cache
+- Informasi aplikasi
+
+### 🎨 Animasi & UI
+- Animasi fade-in-up di semua halaman
+- Stagger animation untuk card
+- Hover effect & gradient button
+- Responsive design
 
 ---
 
@@ -102,15 +138,20 @@ dapurmbg/
 ├── stok_keluar # Pencatatan stok keluar
 ├── stok_opname # Koreksi stok fisik
 ├── stok_mengendap # Sisa bahan produksi
+├── retur_bahan # Retur bahan rusak/kadaluarsa
 ├── menus # Data menu makanan
 ├── resep # Komposisi bahan per menu
 ├── produksi # Produksi harian
 ├── produksi_detail # Detail penggunaan bahan
+├── target_produksi # Target produksi harian
 ├── transaksis # Keuangan
 ├── suppliers # Data supplier
 ├── users # Pengguna sistem
 ├── notifications # Notifikasi stok
+├── activity_logs # Log aktivitas
+├── backup_logs # Log backup database
 └── settings # Pengaturan sistem
+
 
 ---
 
@@ -144,8 +185,8 @@ php artisan key:generate
 # DB_USERNAME=root
 # DB_PASSWORD=
 
-# 6. Jalankan migration dan seeder
-php artisan migrate --seed
+# 6. Jalankan migration
+php artisan migrate
 
 # 7. Buat storage link
 php artisan storage:link
